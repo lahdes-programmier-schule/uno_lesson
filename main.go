@@ -41,7 +41,9 @@ func getGoEnv() []string {
 
 	ret := []string{}
 	for _, e := range strings.Split(string(output), "\n") {
-		ret = append(ret, strings.Replace(e, "\"", "", -1))
+        cleaned := strings.Replace(e, "\"", "", -1)
+        cleaned = strings.Replace(cleaned, "set ", "", 1)
+		ret = append(ret, cleaned)
 	}
 	return ret
 }

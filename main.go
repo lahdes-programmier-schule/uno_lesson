@@ -60,7 +60,7 @@ func getGoRoot() string {
 
 func copyGoWasmJsFile() {
 	goRoot := getGoRoot()
-	goWasmFile := filepath.Join(goRoot, "misc/wasm/wasm_exec.js")
+	goWasmFile := filepath.Join(goRoot, "misc", "wasm", "wasm_exec.js")
 	target := filepath.Join("wasm_app", "wasm_exec.js")
 	if err := Copy(goWasmFile, target); err != nil {
 		log.Fatal(err)

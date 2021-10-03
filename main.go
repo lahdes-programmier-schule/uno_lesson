@@ -41,8 +41,8 @@ func getGoEnv() []string {
 
 	ret := []string{}
 	for _, e := range strings.Split(string(output), "\n") {
-        cleaned := strings.Replace(e, "\"", "", -1)
-        cleaned = strings.Replace(cleaned, "set ", "", 1)
+		cleaned := strings.Replace(e, "\"", "", -1)
+		cleaned = strings.Replace(cleaned, "set ", "", 1)
 		ret = append(ret, cleaned)
 	}
 	return ret
@@ -74,10 +74,27 @@ var wasmBuildArgs = []string{
 	"GOARCH=wasm",
 }
 
-func build() {
+func build(debug bool) {
 	env := getGoEnv()
 	for _, arg := range wasmBuildArgs {
 		env = append(env, arg)
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	buildTmp := filepath.Join(cwd, "tmp")
+	err = os.MkdirAll(buildTmp, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	env = append(env, fmt.Sprintf("GOTMPDIR=%s", buildTmp))
+
+	if debug {
+		for _, ee := range env {
+			fmt.Println(ee)
+		}
 	}
 
 	cmd := exec.Command("go", "build", "-o", "lib.wasm")
@@ -100,9 +117,18 @@ func startServer() {
 }
 
 func main() {
+	argsWithoutProg := os.Args[1:]
+	debug := false
+	if len(argsWithoutProg) > 0 {
+		dd := argsWithoutProg[0]
+		if dd == "--debug" {
+			debug = true
+		}
+	}
+
 	log.Println("Building..")
 	copyGoWasmJsFile()
-	build()
+	build(debug)
 
 	log.Println("Starting server..")
 	startServer()
